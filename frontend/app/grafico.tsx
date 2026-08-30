@@ -80,6 +80,8 @@ export default function GraficoScreen() {
       { key: "scuola", label: "Scuola" },
       { key: "algifor", label: "Algifor" },
       { key: "itinerol", label: "Itinerol" },
+      { key: "bevuto_poco", label: "Bevuto poco" },
+      { key: "riposato_poco", label: "Riposato poco" },
     ];
     const items = defs
       .map((d) => ({

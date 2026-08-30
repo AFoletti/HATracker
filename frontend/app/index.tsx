@@ -4,7 +4,6 @@ import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useState } from "react";
 import {
-  BackHandler,
   Platform,
   Pressable,
   StyleSheet,
@@ -28,7 +27,9 @@ const FACTORS: { key: FactorKey; label: string; icon: keyof typeof Feather.glyph
   { key: "sport", label: "Sport", icon: "activity" },
   { key: "scuola", label: "Scuola", icon: "book-open" },
   { key: "algifor", label: "Algifor", icon: "plus-circle" },
-  { key: "itinerol", label: "Itinerol", icon: "droplet" },
+  { key: "itinerol", label: "Itinerol", icon: "plus-square" },
+  { key: "bevuto_poco", label: "Bevuto poco", icon: "droplet" },
+  { key: "riposato_poco", label: "Riposato poco", icon: "moon" },
 ];
 
 type FactorKey =
@@ -37,7 +38,9 @@ type FactorKey =
   | "sport"
   | "scuola"
   | "algifor"
-  | "itinerol";
+  | "itinerol"
+  | "bevuto_poco"
+  | "riposato_poco";
 
 const EMPTY_FLAGS: Record<FactorKey, boolean> = {
   treno_bus: false,
@@ -46,6 +49,8 @@ const EMPTY_FLAGS: Record<FactorKey, boolean> = {
   scuola: false,
   algifor: false,
   itinerol: false,
+  bevuto_poco: false,
+  riposato_poco: false,
 };
 
 export default function NuovoScreen() {
@@ -75,14 +80,6 @@ export default function NuovoScreen() {
     setNota("");
   }, []);
 
-  const closeOrReset = useCallback(() => {
-    resetForm();
-    // Quick-log behavior: on Android the app goes to background after save/cancel.
-    if (Platform.OS === "android") {
-      setTimeout(() => BackHandler.exitApp(), 600);
-    }
-  }, [resetForm]);
-
   const onSave = async () => {
     if (saving) return;
     setSaving(true);
@@ -92,7 +89,7 @@ export default function NuovoScreen() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
       setToast({ msg: "Episodio salvato" });
-      closeOrReset();
+      resetForm();
     } catch {
       setToast({ msg: "Errore durante il salvataggio", error: true });
     } finally {
@@ -101,7 +98,7 @@ export default function NuovoScreen() {
   };
 
   const onCancel = () => {
-    closeOrReset();
+    resetForm();
     setToast({ msg: "Annullato, niente salvato" });
   };
 

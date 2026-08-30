@@ -29,6 +29,8 @@ const FACTOR_LABELS: [keyof Episode, string][] = [
   ["scuola", "Scuola"],
   ["algifor", "Algifor"],
   ["itinerol", "Itinerol"],
+  ["bevuto_poco", "Bevuto poco"],
+  ["riposato_poco", "Riposato poco"],
 ];
 
 export default function StoricoScreen() {

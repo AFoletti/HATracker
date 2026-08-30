@@ -50,6 +50,10 @@ App mobile per uso personale, tutto on-device: registrazione rapida di episodi d
 - Keyboard UX: `react-native-keyboard-controller` (KeyboardProvider in _layout, KeyboardAwareScrollView + KeyboardStickyView in Nuovo)
 - Testing agent: 7/7 pass
 
+## Iterazione 7 (30 Giu 2026 — fix minori)
+- L'app resta aperta dopo il salvataggio (rimosso BackHandler.exitApp; il form si resetta con toast di conferma)
+- Due nuovi fattori booleani: "Bevuto poco" (`bevuto_poco`) e "Riposato poco" (`riposato_poco`) — chip in Nuovo, tag in Storico, conteggio in Fattori ricorrenti, colonne in SQLite (migrazione ALTER TABLE) e nell'export CSV
+
 ## Backlog aggiornato
 - P1: Modifica episodi esistenti
 - P2: Filtri storico, backup/sync cloud, notifiche

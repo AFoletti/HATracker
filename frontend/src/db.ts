@@ -13,6 +13,8 @@ export interface NewEpisode {
   scuola: boolean;
   algifor: boolean;
   itinerol: boolean;
+  bevuto_poco: boolean;
+  riposato_poco: boolean;
   nota: string;
 }
 
@@ -43,14 +45,24 @@ function getDb(): import("expo-sqlite").SQLiteDatabase {
         scuola INTEGER NOT NULL DEFAULT 0,
         algifor INTEGER NOT NULL DEFAULT 0,
         itinerol INTEGER NOT NULL DEFAULT 0,
+        bevuto_poco INTEGER NOT NULL DEFAULT 0,
+        riposato_poco INTEGER NOT NULL DEFAULT 0,
+        nota TEXT NOT NULL DEFAULT '',
         deleted_at TEXT
       );
     `);
-    // Migration: add nota column to databases created before it existed.
-    try {
-      _db.execSync(`ALTER TABLE episodi ADD COLUMN nota TEXT NOT NULL DEFAULT ''`);
-    } catch {
-      // column already exists
+    // Migrations: add columns to databases created before they existed.
+    const migrations = [
+      `ALTER TABLE episodi ADD COLUMN nota TEXT NOT NULL DEFAULT ''`,
+      `ALTER TABLE episodi ADD COLUMN bevuto_poco INTEGER NOT NULL DEFAULT 0`,
+      `ALTER TABLE episodi ADD COLUMN riposato_poco INTEGER NOT NULL DEFAULT 0`,
+    ];
+    for (const m of migrations) {
+      try {
+        _db.execSync(m);
+      } catch {
+        // column already exists
+      }
     }
   }
   return _db;
@@ -66,6 +78,8 @@ interface Row {
   scuola: number;
   algifor: number;
   itinerol: number;
+  bevuto_poco: number;
+  riposato_poco: number;
   nota: string | null;
 }
 
@@ -80,6 +94,8 @@ function rowToEpisode(r: Row): Episode {
     scuola: !!r.scuola,
     algifor: !!r.algifor,
     itinerol: !!r.itinerol,
+    bevuto_poco: !!r.bevuto_poco,
+    riposato_poco: !!r.riposato_poco,
     nota: r.nota ?? "",
   };
 }
@@ -114,8 +130,8 @@ export async function addEpisode(e: NewEpisode): Promise<Episode> {
   if (isNative) {
     const db = getDb();
     const res = db.runSync(
-      `INSERT INTO episodi (timestamp, scala_mal_di_testa, treno_bus, tanto_schermo, sport, scuola, algifor, itinerol, nota)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO episodi (timestamp, scala_mal_di_testa, treno_bus, tanto_schermo, sport, scuola, algifor, itinerol, bevuto_poco, riposato_poco, nota)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         timestamp,
         e.scala_mal_di_testa,
@@ -125,6 +141,8 @@ export async function addEpisode(e: NewEpisode): Promise<Episode> {
         e.scuola ? 1 : 0,
         e.algifor ? 1 : 0,
         e.itinerol ? 1 : 0,
+        e.bevuto_poco ? 1 : 0,
+        e.riposato_poco ? 1 : 0,
         e.nota,
       ],
     );
@@ -142,7 +160,7 @@ export async function getEpisodes(): Promise<Episode[]> {
   if (isNative) {
     const db = getDb();
     const rows = db.getAllSync<Row>(
-      `SELECT id, timestamp, scala_mal_di_testa, treno_bus, tanto_schermo, sport, scuola, algifor, itinerol, nota
+      `SELECT id, timestamp, scala_mal_di_testa, treno_bus, tanto_schermo, sport, scuola, algifor, itinerol, bevuto_poco, riposato_poco, nota
        FROM episodi WHERE deleted_at IS NULL ORDER BY timestamp DESC`,
     );
     return rows.map(rowToEpisode);
@@ -151,7 +169,12 @@ export async function getEpisodes(): Promise<Episode[]> {
   return store.episodes
     .filter((e) => !e.deleted_at)
     .sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1))
-    .map(({ deleted_at: _d, ...rest }) => ({ ...rest, nota: rest.nota ?? "" }));
+    .map(({ deleted_at: _d, ...rest }) => ({
+      ...rest,
+      bevuto_poco: rest.bevuto_poco ?? false,
+      riposato_poco: rest.riposato_poco ?? false,
+      nota: rest.nota ?? "",
+    }));
 }
 
 export async function deleteEpisode(id: number): Promise<void> {

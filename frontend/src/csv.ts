@@ -15,6 +15,8 @@ const HEADER = [
   "scuola",
   "algifor",
   "itinerol",
+  "bevuto_poco",
+  "riposato_poco",
   "nota",
 ].join(",");
 
@@ -37,6 +39,8 @@ export function buildCsv(episodes: Episode[]): string {
       e.scuola ? 1 : 0,
       e.algifor ? 1 : 0,
       e.itinerol ? 1 : 0,
+      e.bevuto_poco ? 1 : 0,
+      e.riposato_poco ? 1 : 0,
       csvEscape(e.nota ?? ""),
     ].join(","),
   );
