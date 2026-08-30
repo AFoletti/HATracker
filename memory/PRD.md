@@ -61,6 +61,12 @@ App mobile per uso personale, tutto on-device: registrazione rapida di episodi d
 - Validazione con messaggi di errore in italiano; import fallito NON tocca i dati esistenti
 - Testing agent: 9/9 pass (incl. round-trip export→import e regressione)
 
+## Iterazione 9 (30 Giu 2026 — analisi errore deploy)
+- Build APK fallita per `503 Service Unavailable` dall'API EAS Build di Expo (outage lato Expo, DOPO upload e fingerprint riusciti) — nessun errore di codice nei log
+- Health check deployment: rimossi i pattern `.env`/`.env.*`/`*.env` dal .gitignore root (finding del deployment agent; i .env dell'app non contengono segreti)
+- Nota: i finding "SQLite non supportato" del deployment agent sono policy statiche — lo storage on-device è requisito esplicito dell'utente e la pipeline di build accetta expo-sqlite (upload EAS riuscito)
+- Smoke regression testing agent: 6/6 pass — app pronta per nuovo tentativo di deploy
+
 ## Backlog aggiornato
 - P1: Modifica episodi esistenti
 - P2: Filtri storico, riepilogo mensile, notifiche
