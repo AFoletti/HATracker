@@ -1,0 +1,25 @@
+{
+  "summary": "Frontend-only testing of new 'Andamento' chart screen (app/grafico.tsx) + light regression on Nuovo/Storico. All 7 requested scenarios pass on mobile viewport (390x844). Verified: (1) open-grafico-button on Nuovo header opens grafico-screen; (2) empty state grafico-empty-state shows 'Nessun episodio nel periodo selezionato' with 0 episodes; (3) after seeding 3 episodes (intensities 1,4,2) the SVG intensity-chart renders 3 colored circles + 1 connecting path + 6 Y-axis grid lines (0..5) + date/axis labels; (4) stat-count='3', stat-avg='2,3' (comma decimal, Italian), stat-max='4' (colored per scale) — matches expected; (5) period chips period-chip-7 / period-chip-30 / period-chip-all all toggle visual state and keep the freshly-created episodes visible (all inside 7-day window as expected); (6) back-button returns to nuovo-screen; (7) regression: save flow on Nuovo works and Storico list renders the 3 episodes correctly. No console errors, no page errors, no red screens. Only cosmetic note: when all episodes share the same day the X-axis shows a single start label (30 ago), which is intentional per code (endLabel hidden when equal to startLabel).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_2.json", "/app/test_reports/iteration_1.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "grafico.tsx cleanly separates data (useMemo for filtered/stats/chart), rendering (Svg primitives), and layout constants; ~380 lines, well within limit.",
+    "All interactive elements (back-button, period-chip-*, grafico-empty-state, intensity-chart, stat-*) have testID; Text always wrapped; StyleSheet.create used.",
+    "Empty range guard `Math.max(t1 - t0, 1)` and single-episode centering (`plotW/2`) prevent division-by-zero and NaN paths — good defensive code.",
+    "dayjs Italian locale loaded once at module scope; period filter uses isAfter(cutoff) correctly."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (not tested per request)", "frontend": "100%"},
+  "seed_data_creation": "Cleared localStorage (episodi_v1) then created 3 episodes with intensities 1, 4, 2 during automated run. Episodes remain in web storage; can be cleared with localStorage.removeItem('episodi_v1').",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Web URL: https://episode-logger-4.preview.emergentagent.com. Mobile viewport 390x844. To reset: page.evaluate(\"() => localStorage.removeItem('episodi_v1')\") + reload. All chart testIDs verified: grafico-screen, back-button, period-selector, period-chip-{7|30|all}, grafico-empty-state, intensity-chart, stat-count, stat-avg, stat-max. Andamento screen fully working end-to-end.",
+  "rca_of_issue": "No bugs — Andamento feature ships clean."
+}

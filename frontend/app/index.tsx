@@ -110,14 +110,24 @@ export default function NuovoScreen() {
           <Text style={styles.title}>Nuovo episodio</Text>
           <Text style={styles.subtitle}>Come va il mal di testa?</Text>
         </View>
-        <Pressable
-          testID="open-storico-button"
-          onPress={() => router.push("/storico")}
-          style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
-          hitSlop={8}
-        >
-          <Feather name="list" size={22} color={colors.onSurface} />
-        </Pressable>
+        <View style={styles.headerActions}>
+          <Pressable
+            testID="open-grafico-button"
+            onPress={() => router.push("/grafico")}
+            style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
+            hitSlop={8}
+          >
+            <Feather name="trending-up" size={20} color={colors.onSurface} />
+          </Pressable>
+          <Pressable
+            testID="open-storico-button"
+            onPress={() => router.push("/storico")}
+            style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
+            hitSlop={8}
+          >
+            <Feather name="list" size={22} color={colors.onSurface} />
+          </Pressable>
+        </View>
       </View>
 
       <ScrollView
@@ -237,6 +247,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.onSurfaceTertiary,
     marginTop: 2,
+  },
+  headerActions: {
+    flexDirection: "row",
+    gap: spacing.sm,
   },
   iconBtn: {
     width: 44,

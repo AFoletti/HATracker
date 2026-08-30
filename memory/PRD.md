@@ -32,6 +32,17 @@ App mobile per uso personale, tutto on-device: registrazione rapida di episodi d
 ## Iterazione 3 (30 Giu 2026)
 - Nome app impostato a "Mal di Testa" in app.json (appare sotto l'icona dopo la build APK)
 
+## Iterazione 4 (30 Giu 2026 — Grafico Andamento)
+- Nuova schermata `app/grafico.tsx` "Andamento": grafico SVG (react-native-svg) intensità nel tempo — linea + punti colorati con la scala 0–5, asse Y 0–5, etichette date
+- Filtro periodo: chip 7 giorni / 30 giorni / Tutto
+- Statistiche: Episodi, Media (virgola decimale), Massimo (colorato per intensità) + legenda colori
+- Accesso via icona trending-up nell'header della schermata Nuovo
+- Testing agent: 7/7 pass (incl. regressione salvataggio/storico)
+
+## Backlog aggiornato
+- P1: Modifica episodi esistenti
+- P2: Filtri storico, backup/sync cloud, notifiche
+
 ## Backlog / fuori scope v1 (dalla spec)
 - P2: Statistiche/grafici in-app
 - P2: Modifica episodi esistenti
