@@ -1,7 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import "dayjs/locale/it";
-import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useState } from "react";
@@ -156,15 +155,7 @@ export default function StoricoScreen() {
         </View>
       ) : episodes.length === 0 ? (
         <View style={styles.center} testID="empty-state">
-          <Image
-            source={{
-              uri: "https://images.pexels.com/photos/11819765/pexels-photo-11819765.jpeg?auto=compress&w=800",
-            }}
-            style={styles.emptyImage}
-            contentFit="cover"
-            transition={300}
-          />
-          <Text style={styles.emptyText}>Nessun mal di testa registrato.{"\n"}Evviva!</Text>
+          <Text style={styles.emptyText}>Nessun mal di testa registrato</Text>
         </View>
       ) : (
         <FlatList
@@ -225,18 +216,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: spacing.xxl,
   },
-  emptyImage: {
-    width: 220,
-    height: 150,
-    borderRadius: radius.lg,
-    marginBottom: spacing.xl,
-  },
   emptyText: {
-    fontFamily: fonts.display,
-    fontSize: 18,
+    fontFamily: fonts.text,
+    fontSize: 15,
     color: colors.onSurfaceTertiary,
     textAlign: "center",
-    lineHeight: 26,
   },
   card: {
     flexDirection: "row",

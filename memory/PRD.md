@@ -18,10 +18,16 @@ App mobile per uso personale, tutto on-device: registrazione rapida di episodi d
 - Quick-log: su Android dopo Salva/Annulla l'app va in background (`BackHandler.exitApp()`)
 
 ## Implementato (30 Giu 2026 — MVP)
-- Schermata Nuovo episodio: selettore 0–5 a pillole colorate, numero grande dinamico, 6 chip fattori/farmaci, Salva con timestamp ISO automatico, Annulla, toast feedback, haptics
-- Storico: lista cronologica inversa, badge intensità colorato, tag fattori, data italiana (dayjs locale it), eliminazione con conferma inline (soft delete), empty state
+- Schermata Nuovo episodio: selettore 0–5 a pillole colorate, 6 chip fattori/farmaci, Salva con timestamp ISO automatico, Annulla, toast feedback, haptics
+- Storico: lista cronologica inversa, badge intensità colorato, tag fattori, data italiana (dayjs locale it), eliminazione con conferma inline (soft delete), empty state testuale
 - Export CSV: header + una riga per episodio (booleani 0/1), share sheet nativo / download web
 - Testing agent: 100% pass (12/12 flussi)
+
+## Iterazione 2 (30 Giu 2026 — feedback utente)
+- Rimosso il numero grande sopra la scala (solo selettore a pillole)
+- Empty state Storico: solo testo "Nessun mal di testa registrato" (niente immagine)
+- Font cambiato in Manrope (sans serif pulito, 400/600/700 locali in assets/fonts) — Fraunces/Nunito non più caricati
+- Nuova icona app generata (6 punti crescenti verde→rosso su sfondo ink #2A2825): icon.png, adaptive-icon.png, splash-image.png, favicon.png; app.json aggiornato (adaptiveIcon/splash background #2A2825). Nota: l'icona si vede solo dopo build APK, non in Expo Go.
 
 ## Backlog / fuori scope v1 (dalla spec)
 - P2: Statistiche/grafici in-app

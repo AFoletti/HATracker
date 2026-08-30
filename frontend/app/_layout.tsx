@@ -20,9 +20,9 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [iconsLoaded, iconsError] = useIconFonts();
   const [fontsLoaded, fontsError] = useFonts({
-    Fraunces: require("../assets/fonts/Fraunces-SemiBold.ttf"),
-    Nunito: require("../assets/fonts/Nunito-Regular.ttf"),
-    "Nunito-Bold": require("../assets/fonts/Nunito-Bold.ttf"),
+    "Manrope-Regular": require("../assets/fonts/Manrope-Regular.ttf"),
+    "Manrope-SemiBold": require("../assets/fonts/Manrope-SemiBold.ttf"),
+    "Manrope-Bold": require("../assets/fonts/Manrope-Bold.ttf"),
   });
 
   const loaded = iconsLoaded && fontsLoaded;

@@ -51,7 +51,7 @@ export const radius = {
 };
 
 export const fonts = {
-  display: "Fraunces",
-  text: "Nunito",
-  textBold: "Nunito-Bold",
+  display: "Manrope-Bold",
+  text: "Manrope-Regular",
+  textBold: "Manrope-SemiBold",
 };

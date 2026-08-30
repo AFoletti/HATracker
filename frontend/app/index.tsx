@@ -12,12 +12,11 @@ import {
   Text,
   View,
 } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Toast from "@/src/components/Toast";
 import { addEpisode } from "@/src/db";
-import { colors, fonts, radius, scaleColors, scaleLabels, spacing } from "@/src/theme";
+import { colors, fonts, radius, scaleColors, spacing } from "@/src/theme";
 
 const FACTORS: { key: FactorKey; label: string; icon: keyof typeof Feather.glyphMap }[] = [
   { key: "treno_bus", label: "Treno/bus", icon: "truck" },
@@ -126,13 +125,7 @@ export default function NuovoScreen() {
         contentContainerStyle={{ paddingBottom: spacing.xl }}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View entering={FadeInDown.duration(300)} style={styles.bigNumberWrap}>
-          <Text style={[styles.bigNumber, { color: activeColor }]} testID="intensity-value">
-            {scala}
-          </Text>
-          <Text style={[styles.bigLabel, { color: activeColor }]}>{scaleLabels[scala]}</Text>
-        </Animated.View>
-
+        <Text style={styles.sectionTitle}>Intensità</Text>
         <View style={styles.scaleRow} testID="intensity-selector">
           {scaleColors.map((c, i) => {
             const selected = scala === i;
@@ -225,7 +218,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 320,
+    height: 225,
   },
   header: {
     flexDirection: "row",
@@ -259,21 +252,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.xl,
   },
-  bigNumberWrap: {
-    alignItems: "center",
-    marginTop: spacing.lg,
-    marginBottom: spacing.xl,
-  },
-  bigNumber: {
-    fontFamily: fonts.display,
-    fontSize: 96,
-    lineHeight: 104,
-  },
-  bigLabel: {
-    fontFamily: fonts.textBold,
-    fontSize: 16,
-    marginTop: -spacing.sm,
-  },
   scaleRow: {
     flexDirection: "row",
     gap: spacing.sm,
@@ -300,6 +278,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.display,
     fontSize: 18,
     color: colors.onSurface,
+    marginTop: spacing.sm,
     marginBottom: spacing.lg,
   },
   chipsWrap: {
