@@ -43,6 +43,13 @@ App mobile per uso personale, tutto on-device: registrazione rapida di episodi d
 - Nella schermata Andamento: sezione "Fattori ricorrenti (episodi forti 4–5)" — conta i fattori negli episodi con intensità ≥4 nel periodo selezionato, con barre orizzontali, conteggio e percentuale; ordinati per frequenza; stati vuoti gestiti ("Nessun episodio forte nel periodo" / "Nessun fattore registrato")
 - Verificato via screenshot: calcoli corretti (episodio lieve escluso dal conteggio)
 
+## Iterazione 6 (30 Giu 2026 — Nota Libera)
+- Campo "Nota" facoltativo (multiline, max 300 caratteri) nella schermata Nuovo — colonna `nota` in SQLite (migrazione ALTER TABLE) e nel fallback web
+- Storico: la nota appare in corsivo tra virgolette sulla card (solo se presente)
+- CSV: colonna `nota` in coda, con escaping corretto (virgole/virgolette/a-capo)
+- Keyboard UX: `react-native-keyboard-controller` (KeyboardProvider in _layout, KeyboardAwareScrollView + KeyboardStickyView in Nuovo)
+- Testing agent: 7/7 pass
+
 ## Backlog aggiornato
 - P1: Modifica episodi esistenti
 - P2: Filtri storico, backup/sync cloud, notifiche

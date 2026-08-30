@@ -13,6 +13,7 @@ export interface NewEpisode {
   scuola: boolean;
   algifor: boolean;
   itinerol: boolean;
+  nota: string;
 }
 
 export interface Episode extends NewEpisode {
@@ -45,6 +46,12 @@ function getDb(): import("expo-sqlite").SQLiteDatabase {
         deleted_at TEXT
       );
     `);
+    // Migration: add nota column to databases created before it existed.
+    try {
+      _db.execSync(`ALTER TABLE episodi ADD COLUMN nota TEXT NOT NULL DEFAULT ''`);
+    } catch {
+      // column already exists
+    }
   }
   return _db;
 }
@@ -59,6 +66,7 @@ interface Row {
   scuola: number;
   algifor: number;
   itinerol: number;
+  nota: string | null;
 }
 
 function rowToEpisode(r: Row): Episode {
@@ -72,6 +80,7 @@ function rowToEpisode(r: Row): Episode {
     scuola: !!r.scuola,
     algifor: !!r.algifor,
     itinerol: !!r.itinerol,
+    nota: r.nota ?? "",
   };
 }
 
@@ -105,8 +114,8 @@ export async function addEpisode(e: NewEpisode): Promise<Episode> {
   if (isNative) {
     const db = getDb();
     const res = db.runSync(
-      `INSERT INTO episodi (timestamp, scala_mal_di_testa, treno_bus, tanto_schermo, sport, scuola, algifor, itinerol)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO episodi (timestamp, scala_mal_di_testa, treno_bus, tanto_schermo, sport, scuola, algifor, itinerol, nota)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         timestamp,
         e.scala_mal_di_testa,
@@ -116,6 +125,7 @@ export async function addEpisode(e: NewEpisode): Promise<Episode> {
         e.scuola ? 1 : 0,
         e.algifor ? 1 : 0,
         e.itinerol ? 1 : 0,
+        e.nota,
       ],
     );
     return { id: res.lastInsertRowId, timestamp, ...e };
@@ -132,7 +142,7 @@ export async function getEpisodes(): Promise<Episode[]> {
   if (isNative) {
     const db = getDb();
     const rows = db.getAllSync<Row>(
-      `SELECT id, timestamp, scala_mal_di_testa, treno_bus, tanto_schermo, sport, scuola, algifor, itinerol
+      `SELECT id, timestamp, scala_mal_di_testa, treno_bus, tanto_schermo, sport, scuola, algifor, itinerol, nota
        FROM episodi WHERE deleted_at IS NULL ORDER BY timestamp DESC`,
     );
     return rows.map(rowToEpisode);
@@ -141,7 +151,7 @@ export async function getEpisodes(): Promise<Episode[]> {
   return store.episodes
     .filter((e) => !e.deleted_at)
     .sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1))
-    .map(({ deleted_at: _d, ...rest }) => rest);
+    .map(({ deleted_at: _d, ...rest }) => ({ ...rest, nota: rest.nota ?? "" }));
 }
 
 export async function deleteEpisode(id: number): Promise<void> {

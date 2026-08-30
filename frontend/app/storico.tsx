@@ -92,6 +92,11 @@ export default function StoricoScreen() {
           ) : (
             <Text style={styles.cardTagsEmpty}>Nessun fattore</Text>
           )}
+          {!!item.nota && (
+            <Text style={styles.cardNota} numberOfLines={2} testID={`episode-nota-${item.id}`}>
+              “{item.nota}”
+            </Text>
+          )}
         </View>
         {confirming ? (
           <View style={styles.confirmRow}>
@@ -265,6 +270,13 @@ const styles = StyleSheet.create({
     color: colors.borderStrong,
     marginTop: 2,
     fontStyle: "italic",
+  },
+  cardNota: {
+    fontFamily: fonts.text,
+    fontSize: 13,
+    color: colors.onSurfaceSecondary,
+    fontStyle: "italic",
+    marginTop: spacing.xs,
   },
   trashBtn: {
     width: 40,

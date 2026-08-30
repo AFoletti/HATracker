@@ -15,7 +15,15 @@ const HEADER = [
   "scuola",
   "algifor",
   "itinerol",
+  "nota",
 ].join(",");
+
+function csvEscape(value: string): string {
+  if (/[",\n\r]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
 
 export function buildCsv(episodes: Episode[]): string {
   const lines = episodes.map((e) =>
@@ -29,6 +37,7 @@ export function buildCsv(episodes: Episode[]): string {
       e.scuola ? 1 : 0,
       e.algifor ? 1 : 0,
       e.itinerol ? 1 : 0,
+      csvEscape(e.nota ?? ""),
     ].join(","),
   );
   return [HEADER, ...lines].join("\n");

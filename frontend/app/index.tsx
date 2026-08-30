@@ -7,11 +7,15 @@ import {
   BackHandler,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
+import {
+  KeyboardAwareScrollView,
+  KeyboardStickyView,
+} from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Toast from "@/src/components/Toast";
@@ -49,6 +53,7 @@ export default function NuovoScreen() {
   const router = useRouter();
   const [scala, setScala] = useState(0);
   const [flags, setFlags] = useState<Record<FactorKey, boolean>>(EMPTY_FLAGS);
+  const [nota, setNota] = useState("");
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ msg: string; error?: boolean } | null>(null);
 
@@ -67,6 +72,7 @@ export default function NuovoScreen() {
   const resetForm = useCallback(() => {
     setScala(0);
     setFlags(EMPTY_FLAGS);
+    setNota("");
   }, []);
 
   const closeOrReset = useCallback(() => {
@@ -81,7 +87,7 @@ export default function NuovoScreen() {
     if (saving) return;
     setSaving(true);
     try {
-      await addEpisode({ scala_mal_di_testa: scala, ...flags });
+      await addEpisode({ scala_mal_di_testa: scala, ...flags, nota: nota.trim() });
       if (Platform.OS !== "web") {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
@@ -130,10 +136,11 @@ export default function NuovoScreen() {
         </View>
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollView
         style={styles.scroll}
         contentContainerStyle={{ paddingBottom: spacing.xl }}
         showsVerticalScrollIndicator={false}
+        bottomOffset={110}
       >
         <Text style={styles.sectionTitle}>Intensità</Text>
         <View style={styles.scaleRow} testID="intensity-selector">
@@ -184,9 +191,24 @@ export default function NuovoScreen() {
             );
           })}
         </View>
-      </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.lg }]}>
+        <Text style={styles.sectionTitle}>Nota</Text>
+        <TextInput
+          testID="nota-input"
+          style={styles.notaInput}
+          value={nota}
+          onChangeText={setNota}
+          placeholder="Aggiungi una nota (facoltativa)…"
+          placeholderTextColor={colors.borderStrong}
+          multiline
+          maxLength={300}
+          returnKeyType="done"
+          blurOnSubmit
+        />
+      </KeyboardAwareScrollView>
+
+      <KeyboardStickyView offset={{ closed: 0, opened: insets.bottom }}>
+        <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.lg }]}>
         <Pressable
           testID="cancel-button"
           onPress={onCancel}
@@ -206,7 +228,8 @@ export default function NuovoScreen() {
           <Feather name="check" size={18} color={colors.onBrandPrimary} />
           <Text style={styles.saveBtnText}>{saving ? "Salvo…" : "Salva"}</Text>
         </Pressable>
-      </View>
+        </View>
+      </KeyboardStickyView>
 
       <Toast
         message={toast?.msg ?? ""}
@@ -322,6 +345,21 @@ const styles = StyleSheet.create({
   },
   chipTextOn: {
     color: colors.onBrandPrimary,
+  },
+  notaInput: {
+    marginTop: 0,
+    minHeight: 84,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.md,
+    fontFamily: fonts.text,
+    fontSize: 14,
+    color: colors.onSurface,
+    textAlignVertical: "top",
   },
   footer: {
     flexDirection: "row",

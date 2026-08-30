@@ -1,0 +1,27 @@
+{
+  "summary": "Frontend-only regression + new 'Nota' feature testing on Expo web preview (390x844). All 7 scenarios PASS. Verified: (1) nota-input rendered with correct Italian placeholder 'Aggiungi una nota (facoltativa)…', multiline, maxLength=300 (verified: pasted 350 chars → truncated to exactly 300). (2) Save with note stores nota in web KV store, form resets (scala→0, chips→off, nota→''). (3) Save WITHOUT note works (empty string persisted, verified in localStorage). (4) Storico card renders note in italic curly quotes via testID episode-nota-{id} ONLY when non-empty; empty-nota episode correctly omits the element. (5) CSV export via export-csv-button downloads mal_di_testa_YYYY-MM-DD.csv with header ending in 'nota'; a tricky note containing both a comma and double-quotes is properly escaped as \"Nota, con \"\"virgolette\"\" e virgola\"; a multiline note is wrapped in double-quotes preserving the embedded newline; empty-note row ends with trailing comma. (6) Regression OK: intensity-pill-*, factor-chip-*, delete-button-{id} + confirm-delete-{id} + toast, open-grafico-button navigates to grafico-screen with intensity-chart rendered and stat-count reflecting remaining episodes. (7) Root layout wrapped in KeyboardProvider + Nuovo using KeyboardAwareScrollView / KeyboardStickyView: no crash, no red screen, no console errors, no pageerror events. Screen renders cleanly and footer sticks correctly. Everything ships clean.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_3.json", "/app/test_reports/iteration_2.json", "/app/test_reports/iteration_1.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "csv.ts: csvEscape correctly handles the three problematic characters (comma, double-quote, CR/LF) per RFC 4180 — verified end-to-end via download.",
+    "db.ts: Additive column migration via `ALTER TABLE episodi ADD COLUMN nota TEXT NOT NULL DEFAULT ''` wrapped in try/catch is idempotent and safe; web path defensively coalesces `rest.nota ?? ''` for legacy records without the field. Good migration hygiene.",
+    "index.tsx: `nota.trim()` before addEpisode prevents whitespace-only notes from cluttering Storico; still stored as empty string so the italic line is hidden — consistent UX.",
+    "storico.tsx: Empty-note case guarded with `{!!item.nota && (...)}` — episode-nota-{id} element only rendered when truthy, matching test expectation.",
+    "Minor (informational, not a bug): storage abstraction (src/utils/storage/index.web.ts) JSON.stringifies values, and db.ts additionally JSON.stringifies before setItem, so localStorage['episodi_v1'] is double-encoded on disk. Round-trips fine because webLoad also JSON.parses twice (via storage.getItem + inner JSON.parse). Consider passing the raw object to storage.setItem to remove one level of encoding, but this is purely a hygiene point — no functional impact.",
+    "_layout.tsx: KeyboardProvider wraps Stack cleanly; SplashScreen.preventAutoHideAsync + font-gated hideAsync avoids @expo/vector-icons race — no regression on web preview."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (no backend per problem statement)", "frontend": "100% (7/7 scenarios)"},
+  "seed_data_creation": "During run: cleared localStorage['episodi_v1'], seeded 3 episodes (scala 3+sport+tricky note, scala 1+no note, scala 2+multiline note), then deleted id=1 leaving 2 episodes in web storage.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Web URL: https://episode-logger-4.preview.emergentagent.com. Mobile viewport 390x844. localStorage stores 'episodi_v1' DOUBLE-encoded — use `JSON.parse(JSON.parse(localStorage.getItem('episodi_v1')))` when inspecting from Playwright, or clear with `localStorage.removeItem('episodi_v1')`. TestIDs verified on this iteration: nuovo-screen, intensity-pill-{0..5}, factor-chip-{treno_bus|tanto_schermo|sport|scuola|algifor|itinerol}, nota-input, save-button, cancel-button, open-storico-button, open-grafico-button, storico-screen, back-button, export-csv-button, episode-card-{id}, episode-nota-{id} (only when nota non-empty), delete-button-{id}, confirm-delete-{id}, cancel-delete-{id}, grafico-screen, intensity-chart, stat-count.",
+  "rca_of_issue": "No bugs — Nota feature ships clean; keyboard-controller integration stable on web preview."
+}
