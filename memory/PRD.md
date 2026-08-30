@@ -29,6 +29,9 @@ App mobile per uso personale, tutto on-device: registrazione rapida di episodi d
 - Font cambiato in Manrope (sans serif pulito, 400/600/700 locali in assets/fonts) — Fraunces/Nunito non più caricati
 - Nuova icona app generata (6 punti crescenti verde→rosso su sfondo ink #2A2825): icon.png, adaptive-icon.png, splash-image.png, favicon.png; app.json aggiornato (adaptiveIcon/splash background #2A2825). Nota: l'icona si vede solo dopo build APK, non in Expo Go.
 
+## Iterazione 3 (30 Giu 2026)
+- Nome app impostato a "Mal di Testa" in app.json (appare sotto l'icona dopo la build APK)
+
 ## Backlog / fuori scope v1 (dalla spec)
 - P2: Statistiche/grafici in-app
 - P2: Modifica episodi esistenti
