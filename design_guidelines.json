@@ -1,0 +1,118 @@
+{
+  "app_name": "Mal di Testa Tracker",
+  "personality": "8 Hand-Drawn / Journal",
+  "personality_one_liner": "A calm, deeply personal, and tactile tracker that feels like a soft notebook, reducing the stress of logging pain.",
+  "color": {
+    "surface": "#F9F8F6",
+    "onSurface": "#2A2825",
+    "surfaceSecondary": "#EFECE7",
+    "onSurfaceSecondary": "#4A4743",
+    "surfaceTertiary": "#E3DFD8",
+    "onSurfaceTertiary": "#5C5854",
+    "surfaceInverse": "#2A2825",
+    "onSurfaceInverse": "#F9F8F6",
+    "brand": "#2A2825",
+    "brandPrimary": "#2A2825",
+    "onBrandPrimary": "#F9F8F6",
+    "brandSecondary": "#EFECE7",
+    "onBrandSecondary": "#2A2825",
+    "brandTertiary": "#D5D0C8",
+    "onBrandTertiary": "#2A2825",
+    "success": "#8BA888",
+    "onSuccess": "#FFFFFF",
+    "warning": "#D8C26B",
+    "onWarning": "#2A2825",
+    "error": "#C26553",
+    "onError": "#FFFFFF",
+    "info": "#D5D0C8",
+    "onInfo": "#2A2825",
+    "border": "#E3DFD8",
+    "borderStrong": "#C4BEB5"
+  },
+  "typography": {
+    "displayFontFamily": "Fraunces",
+    "textFontFamily": "Nunito",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Generous and soft padding to create a calm, uncrowded feel. Avoid cramped lists.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": 0,
+  "navigation": "stack_only",
+  "icon_set": "Feather",
+  "glassmorphism": {
+    "enabled": false,
+    "do's": [],
+    "dont's": ["No glassmorphism. Use solid matte colors to maintain the paper/journal aesthetic."]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Nuovo (Home)",
+      "purpose": "Quick-log screen opening directly on launch to register headache intensity and triggers.",
+      "states": {
+        "loading": "Centered soft spinner.",
+        "empty": "N/A",
+        "error": "Error toast if save fails."
+      },
+      "layout": "Header: Title 'Nuovo' (Fraunces) and a right-aligned History (list) icon button. Content: 1. Big display of selected intensity (0-5). 2. Discrete Selector: A horizontal row of 6 pill-shaped buttons (0 to 5). As the user taps one, it fills with its specific earthy scale color (0: #8BA888, 1: #B3BE7E, 2: #D8C26B, 3: #D6985C, 4: #C26553, 5: #8F3B3B) and slightly expands, while others remain muted (surfaceSecondary). 3. Section Title 'Fattori e Farmaci'. 4. Checkboxes: Displayed as a flex-wrap row of Chips (Treno/bus, Tanto schermo, Sport, Scuola, Algifor, Itinerol). Unselected = surfaceSecondary, Selected = brandPrimary (Ink). Bottom: Sticky footer with 'Salva' (primary) and 'Annulla' (secondary/ghost) buttons."
+    },
+    {
+      "name": "Storico",
+      "purpose": "Reverse-chronological list of past episodes with CSV export.",
+      "states": {
+        "loading": "Skeleton list items.",
+        "empty": "Calm landscape image with text 'Nessun mal di testa registrato. Evviva!'.",
+        "error": "Readable text with retry button."
+      },
+      "layout": "Header: Back button, Title 'Storico', Right icon 'Esporta CSV' (Share icon). Content: FlatList of cards (surfaceSecondary). Each card shows the Date/Time, a colored dot or badge showing the intensity number (colored using the specific 0-5 scale color), and a small list of selected trigger tags. Include a trash icon on the card to delete the episode."
+    }
+  ],
+  "images": {
+    "storico_empty_state": {
+      "url": "https://images.pexels.com/photos/11819765/pexels-photo-11819765.jpeg",
+      "alt": "Calm lake scene with distant hills under a muted gray sky"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Build the app fully on-device using SQLite (`expo-sqlite`). No backend.",
+    "The app MUST open directly on the 'Nuovo' screen (quick-log). Use a Stack Navigator where 'Nuovo' is the initial route, and 'Storico' is pushed onto the stack.",
+    "All UI text must be in Italian (Salva, Annulla, Intensità, Fattori e Farmaci, Storico, Esporta CSV, etc.).",
+    "For the 0-5 intensity selector, use these EXACT colors to represent the dynamic scale (Green to Dark Red) in an earthy, non-jarring way: 0: #8BA888, 1: #B3BE7E, 2: #D8C26B, 3: #D6985C, 4: #C26553, 5: #8F3B3B. Apply the selected color to the active intensity pill. Optionally, tint the background of the top half slightly with 10% opacity of the selected color.",
+    "Implement the 6 'checkboxes' (Treno/bus, Tanto schermo, Sport, Scuola, Algifor, Itinerol) as selectable tactile Chips, not actual square checkboxes. This fits the touch-friendly mobile layout better.",
+    "For CSV Export, generate the CSV string from the SQLite database and use `expo-sharing` and `expo-file-system` to invoke the native share sheet.",
+    "Ensure 'Salva' automatically captures the current timestamp (auto timestamp) and saves it with the selected intensity and toggled chips.",
+    "Use 'Fraunces' for big display numbers and headers, and 'Nunito' for buttons and tags to maintain the Hand-Drawn/Journal calming aesthetic.",
+    "Do NOT use glassmorphism. Keep surfaces matte and solid to resemble paper."
+  ]
+}
