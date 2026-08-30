@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Modal,
   Pressable,
   StyleSheet,
   Text,
@@ -16,8 +17,8 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Toast from "@/src/components/Toast";
-import { deleteEpisode, Episode, getEpisodes } from "@/src/db";
-import { exportCsv } from "@/src/csv";
+import { deleteEpisode, Episode, getEpisodes, replaceAllEpisodes } from "@/src/db";
+import { exportCsv, parseCsv, pickCsvText } from "@/src/csv";
 import { colors, fonts, radius, scaleColors, spacing } from "@/src/theme";
 
 dayjs.locale("it");
@@ -40,6 +41,8 @@ export default function StoricoScreen() {
   const [loading, setLoading] = useState(true);
   const [confirmId, setConfirmId] = useState<number | null>(null);
   const [toast, setToast] = useState<{ msg: string; error?: boolean } | null>(null);
+  const [showImportConfirm, setShowImportConfirm] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -70,6 +73,26 @@ export default function StoricoScreen() {
     }
     const res = await exportCsv(episodes);
     setToast({ msg: res.message, error: !res.ok });
+  };
+
+  const doImport = async () => {
+    setShowImportConfirm(false);
+    if (importing) return;
+    try {
+      const text = await pickCsvText();
+      if (text === null) return; // user cancelled the picker
+      setImporting(true);
+      const parsed = parseCsv(text);
+      const n = await replaceAllEpisodes(parsed);
+      const eps = await getEpisodes();
+      setEpisodes(eps);
+      setToast({ msg: `Importati ${n} ${n === 1 ? "episodio" : "episodi"}` });
+    } catch (e) {
+      const msg = e instanceof Error && e.message ? e.message : "Import non riuscito";
+      setToast({ msg, error: true });
+    } finally {
+      setImporting(false);
+    }
   };
 
   const renderItem = ({ item, index }: { item: Episode; index: number }) => {
@@ -146,14 +169,29 @@ export default function StoricoScreen() {
           <Feather name="arrow-left" size={22} color={colors.onSurface} />
         </Pressable>
         <Text style={styles.title}>Storico</Text>
-        <Pressable
-          testID="export-csv-button"
-          onPress={onExport}
-          style={({ pressed }) => [styles.iconBtn, pressed && { opacity: 0.7 }]}
-          hitSlop={8}
-        >
-          <Feather name="share" size={20} color={colors.onSurface} />
-        </Pressable>
+        <View style={styles.headerActions}>
+          <Pressable
+            testID="import-csv-button"
+            onPress={() => setShowImportConfirm(true)}
+            disabled={importing}
+            style={({ pressed }) => [styles.iconBtn, (pressed || importing) && { opacity: 0.7 }]}
+            hitSlop={8}
+          >
+            {importing ? (
+              <ActivityIndicator size="small" color={colors.onSurface} />
+            ) : (
+              <Feather name="download" size={20} color={colors.onSurface} />
+            )}
+          </Pressable>
+          <Pressable
+            testID="export-csv-button"
+            onPress={onExport}
+            style={({ pressed }) => [styles.iconBtn, pressed && { opacity: 0.7 }]}
+            hitSlop={8}
+          >
+            <Feather name="share" size={20} color={colors.onSurface} />
+          </Pressable>
+        </View>
       </View>
 
       {loading ? (
@@ -179,6 +217,40 @@ export default function StoricoScreen() {
           testID="episodes-list"
         />
       )}
+
+      <Modal
+        visible={showImportConfirm}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowImportConfirm(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard} testID="import-confirm-modal">
+            <Feather name="download" size={24} color={colors.onSurface} />
+            <Text style={styles.modalTitle}>Importa CSV</Text>
+            <Text style={styles.modalText}>
+              L'import sostituirà tutti gli episodi attuali con quelli del file CSV.
+              Continuare?
+            </Text>
+            <View style={styles.modalActions}>
+              <Pressable
+                testID="import-cancel-button"
+                onPress={() => setShowImportConfirm(false)}
+                style={({ pressed }) => [styles.modalGhostBtn, pressed && { opacity: 0.7 }]}
+              >
+                <Text style={styles.modalGhostText}>Annulla</Text>
+              </Pressable>
+              <Pressable
+                testID="import-confirm-button"
+                onPress={doImport}
+                style={({ pressed }) => [styles.modalPrimaryBtn, pressed && { opacity: 0.7 }]}
+              >
+                <Text style={styles.modalPrimaryText}>Scegli file</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       <Toast
         message={toast?.msg ?? ""}
@@ -216,6 +288,72 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  headerActions: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(42, 40, 37, 0.45)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: spacing.xl,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 400,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.xl,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontFamily: fonts.display,
+    fontSize: 18,
+    color: colors.onSurface,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  modalText: {
+    fontFamily: fonts.text,
+    fontSize: 14,
+    color: colors.onSurfaceSecondary,
+    textAlign: "center",
+    lineHeight: 20,
+    marginBottom: spacing.xl,
+  },
+  modalActions: {
+    flexDirection: "row",
+    gap: spacing.md,
+    alignSelf: "stretch",
+  },
+  modalGhostBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: radius.md,
+    borderWidth: 1.5,
+    borderColor: colors.borderStrong,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalGhostText: {
+    fontFamily: fonts.textBold,
+    fontSize: 14,
+    color: colors.onSurfaceSecondary,
+  },
+  modalPrimaryBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: radius.md,
+    backgroundColor: colors.brandPrimary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalPrimaryText: {
+    fontFamily: fonts.textBold,
+    fontSize: 14,
+    color: colors.onBrandPrimary,
   },
   center: {
     flex: 1,

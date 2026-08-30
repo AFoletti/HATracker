@@ -189,3 +189,47 @@ export async function deleteEpisode(id: number): Promise<void> {
   if (ep) ep.deleted_at = deletedAt;
   await webSave(store);
 }
+
+// Replaces the whole dataset with imported episodes: existing rows are
+// soft-deleted, imported rows are inserted fresh. Returns inserted count.
+export type ImportedEpisode = NewEpisode & { timestamp: string };
+
+export async function replaceAllEpisodes(eps: ImportedEpisode[]): Promise<number> {
+  const now = new Date().toISOString();
+  if (isNative) {
+    const db = getDb();
+    db.withTransactionSync(() => {
+      db.runSync(`UPDATE episodi SET deleted_at = ? WHERE deleted_at IS NULL`, [now]);
+      for (const e of eps) {
+        db.runSync(
+          `INSERT INTO episodi (timestamp, scala_mal_di_testa, treno_bus, tanto_schermo, sport, scuola, algifor, itinerol, bevuto_poco, riposato_poco, nota)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            e.timestamp,
+            e.scala_mal_di_testa,
+            e.treno_bus ? 1 : 0,
+            e.tanto_schermo ? 1 : 0,
+            e.sport ? 1 : 0,
+            e.scuola ? 1 : 0,
+            e.algifor ? 1 : 0,
+            e.itinerol ? 1 : 0,
+            e.bevuto_poco ? 1 : 0,
+            e.riposato_poco ? 1 : 0,
+            e.nota,
+          ],
+        );
+      }
+    });
+    return eps.length;
+  }
+  const store = await webLoad();
+  for (const ep of store.episodes) {
+    if (!ep.deleted_at) ep.deleted_at = now;
+  }
+  for (const e of eps) {
+    store.episodes.push({ id: store.nextId, ...e, deleted_at: null });
+    store.nextId += 1;
+  }
+  await webSave(store);
+  return eps.length;
+}

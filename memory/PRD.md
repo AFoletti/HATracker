@@ -54,9 +54,16 @@ App mobile per uso personale, tutto on-device: registrazione rapida di episodi d
 - L'app resta aperta dopo il salvataggio (rimosso BackHandler.exitApp; il form si resetta con toast di conferma)
 - Due nuovi fattori booleani: "Bevuto poco" (`bevuto_poco`) e "Riposato poco" (`riposato_poco`) — chip in Nuovo, tag in Storico, conteggio in Fattori ricorrenti, colonne in SQLite (migrazione ALTER TABLE) e nell'export CSV
 
+## Iterazione 8 (30 Giu 2026 — Import CSV)
+- Pulsante Import (icona download) nell'header dello Storico → modal di conferma ("sostituirà tutti gli episodi attuali") → file picker di sistema (expo-document-picker)
+- Parser CSV RFC4180 in `src/csv.ts` (parseCsv, pickCsvText): gestisce campi tra virgolette, virgole/a-capo nelle note, BOM; accetta anche export vecchi senza le colonne nuove (default 0/vuoto)
+- `replaceAllEpisodes` in db.ts: soft-delete di tutti gli episodi correnti + insert dei nuovi in transazione (SQLite) / fallback web
+- Validazione con messaggi di errore in italiano; import fallito NON tocca i dati esistenti
+- Testing agent: 9/9 pass (incl. round-trip export→import e regressione)
+
 ## Backlog aggiornato
 - P1: Modifica episodi esistenti
-- P2: Filtri storico, backup/sync cloud, notifiche
+- P2: Filtri storico, riepilogo mensile, notifiche
 
 ## Backlog / fuori scope v1 (dalla spec)
 - P2: Statistiche/grafici in-app
