@@ -39,6 +39,10 @@ App mobile per uso personale, tutto on-device: registrazione rapida di episodi d
 - Accesso via icona trending-up nell'header della schermata Nuovo
 - Testing agent: 7/7 pass (incl. regressione salvataggio/storico)
 
+## Iterazione 5 (30 Giu 2026 — Fattori Ricorrenti)
+- Nella schermata Andamento: sezione "Fattori ricorrenti (episodi forti 4–5)" — conta i fattori negli episodi con intensità ≥4 nel periodo selezionato, con barre orizzontali, conteggio e percentuale; ordinati per frequenza; stati vuoti gestiti ("Nessun episodio forte nel periodo" / "Nessun fattore registrato")
+- Verificato via screenshot: calcoli corretti (episodio lieve escluso dal conteggio)
+
 ## Backlog aggiornato
 - P1: Modifica episodi esistenti
 - P2: Filtri storico, backup/sync cloud, notifiche

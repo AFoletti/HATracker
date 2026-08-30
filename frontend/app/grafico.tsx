@@ -69,6 +69,29 @@ export default function GraficoScreen() {
     };
   }, [filtered]);
 
+  // Recurring factors among strong episodes (intensity 4-5) in the selected period
+  const strongFactors = useMemo(() => {
+    const strong = filtered.filter((e) => e.scala_mal_di_testa >= 4);
+    if (strong.length === 0) return { total: 0, items: [] as { key: string; label: string; count: number }[] };
+    const defs: { key: keyof Episode; label: string }[] = [
+      { key: "treno_bus", label: "Treno/bus" },
+      { key: "tanto_schermo", label: "Tanto schermo" },
+      { key: "sport", label: "Sport" },
+      { key: "scuola", label: "Scuola" },
+      { key: "algifor", label: "Algifor" },
+      { key: "itinerol", label: "Itinerol" },
+    ];
+    const items = defs
+      .map((d) => ({
+        key: d.key as string,
+        label: d.label,
+        count: strong.filter((e) => e[d.key] === true).length,
+      }))
+      .filter((i) => i.count > 0)
+      .sort((a, b) => b.count - a.count);
+    return { total: strong.length, items };
+  }, [filtered]);
+
   const chartWidth = Math.min(width, 500) - spacing.xl * 2;
   const plotW = chartWidth - PAD_LEFT - PAD_RIGHT;
   const plotH = CHART_HEIGHT - PAD_TOP - PAD_BOTTOM;
@@ -238,6 +261,49 @@ export default function GraficoScreen() {
             </View>
           )}
 
+          {/* Recurring factors in strong episodes */}
+          <View style={styles.factorsCard} testID="strong-factors-section">
+            <View style={styles.factorsHeader}>
+              <View style={[styles.legendDot, { backgroundColor: scaleColors[4] }]} />
+              <Text style={styles.factorsTitle}>Fattori ricorrenti (episodi forti 4–5)</Text>
+            </View>
+            {strongFactors.total === 0 ? (
+              <Text style={styles.factorsEmpty} testID="strong-factors-empty">
+                Nessun episodio forte nel periodo
+              </Text>
+            ) : strongFactors.items.length === 0 ? (
+              <Text style={styles.factorsEmpty} testID="strong-factors-empty">
+                Nessun fattore registrato negli episodi forti
+              </Text>
+            ) : (
+              <>
+                <Text style={styles.factorsSubtitle}>
+                  Su {strongFactors.total}{" "}
+                  {strongFactors.total === 1 ? "episodio forte" : "episodi forti"}
+                </Text>
+                {strongFactors.items.map((f) => {
+                  const pct = f.count / strongFactors.total;
+                  return (
+                    <View key={f.key} style={styles.factorRow} testID={`strong-factor-${f.key}`}>
+                      <Text style={styles.factorLabel}>{f.label}</Text>
+                      <View style={styles.factorBarTrack}>
+                        <View
+                          style={[
+                            styles.factorBarFill,
+                            { width: `${Math.round(pct * 100)}%` },
+                          ]}
+                        />
+                      </View>
+                      <Text style={styles.factorCount}>
+                        {f.count}·{Math.round(pct * 100)}%
+                      </Text>
+                    </View>
+                  );
+                })}
+              </>
+            )}
+          </View>
+
           {/* Legend */}
           <View style={styles.legendRow}>
             {scaleColors.map((c, i) => (
@@ -363,6 +429,69 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: spacing.lg,
+  },
+  factorsCard: {
+    backgroundColor: colors.surfaceSecondary,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  factorsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  factorsTitle: {
+    fontFamily: fonts.display,
+    fontSize: 15,
+    color: colors.onSurface,
+    flexShrink: 1,
+  },
+  factorsSubtitle: {
+    fontFamily: fonts.text,
+    fontSize: 12,
+    color: colors.onSurfaceTertiary,
+    marginBottom: spacing.md,
+  },
+  factorsEmpty: {
+    fontFamily: fonts.text,
+    fontSize: 13,
+    color: colors.onSurfaceTertiary,
+    marginTop: spacing.xs,
+  },
+  factorRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  factorLabel: {
+    fontFamily: fonts.textBold,
+    fontSize: 13,
+    color: colors.onSurfaceSecondary,
+    width: 110,
+  },
+  factorBarTrack: {
+    flex: 1,
+    height: 10,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceTertiary,
+    overflow: "hidden",
+  },
+  factorBarFill: {
+    height: "100%",
+    borderRadius: radius.pill,
+    backgroundColor: scaleColors[4],
+  },
+  factorCount: {
+    fontFamily: fonts.text,
+    fontSize: 12,
+    color: colors.onSurfaceTertiary,
+    width: 52,
+    textAlign: "right",
   },
   legendItem: {
     flexDirection: "row",
